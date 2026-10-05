@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+output/
+.prove/
+.env*
+*.db
+*.db-*
+*.tgz
+.DS_Store

@@ -1,0 +1,21 @@
+{
+  "feature": "order summary on the checkout page",
+  "criteria": [
+    {
+      "id": "summary-visible",
+      "given": "a cart with two items",
+      "when": "the checkout page renders on desktop",
+      "then": "an order summary lists both items and the total",
+      "checkpoint": "checkout",
+      "rubric": "The screenshot shows a summary panel next to the address form with two item rows and a total row. There is no empty placeholder where the summary should be."
+    },
+    {
+      "id": "place-order-confirms",
+      "given": "the checkout page with a valid address",
+      "when": "the user clicks Place order",
+      "then": "a confirmation heading replaces the form",
+      "checkpoint": "confirmation",
+      "rubric": "The screenshot shows a heading 'Thank you' and an order number. The address form and the Place order button are no longer visible, and no error message is shown."
+    }
+  ]
+}

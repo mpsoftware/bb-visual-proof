@@ -1,0 +1,107 @@
+@layer theme, base, components, utilities;
+
+/* BB theme tokens for the screenshot harness only; never shipped with the plugin.
+   Copied from plugins/advisor/design/advisor-ui-mockup.html, whose block is itself
+   copied from BB's apps/app/src/components/ui/theme.css (light and dark anchors,
+   derived tokens with the same formulas). */
+:root {
+  --canvas: oklch(1 0 0);
+  --ink: oklch(0.3211 0 0);
+  --radius: 0.5rem;
+  --font-sans: "Inter Variable", Inter, system-ui, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, monospace;
+
+  --primary: oklch(0.27 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --muted-foreground: oklch(0.44 0 0);
+  --subtle-foreground: oklch(0.5 0 0);
+  --readback-foreground: oklch(0.47 0 0);
+  --timeline-accent: oklch(0.55 0.1 250);
+
+  --destructive: oklch(0.45 0.19 25.8625);
+  --destructive-text: oklch(0.45 0.19 25.8625);
+  --attention: oklch(0.74 0.15 80);
+  --warning: oklch(0.7 0.16 50);
+  --warning-text: oklch(0.55 0.14 50);
+  --success: oklch(0.7 0.15 155);
+}
+
+.dark {
+  --canvas: oklch(0.195 0 0);
+  --ink: oklch(0.81 0 0);
+  --primary: oklch(0.82 0 0);
+  /* Not in the copied block; assumed from the shadcn convention that dark primary text inverts to the canvas. */
+  --primary-foreground: var(--canvas);
+  --muted-foreground: oklch(0.78 0 0);
+  --subtle-foreground: oklch(0.68 0 0);
+  --readback-foreground: oklch(0.72 0 0);
+  --timeline-accent: oklch(0.72 0.09 250);
+  --destructive: oklch(0.56 0.19 22.1703);
+  --destructive-text: oklch(0.65 0.16 22);
+  --attention: oklch(0.8 0.15 80);
+  --warning: oklch(0.75 0.16 50);
+  --warning-text: oklch(0.75 0.16 50);
+  --success: oklch(0.74 0.15 155);
+}
+
+/* Derived tokens — same formulas as theme.css */
+:root,
+.dark {
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --card: var(--canvas);
+  --secondary: color-mix(in oklch, var(--ink) 8%, var(--canvas));
+  --accent: color-mix(in oklch, var(--ink) 8%, var(--canvas));
+  --muted: color-mix(in oklch, var(--ink) 11%, var(--canvas));
+  --border: color-mix(in oklch, var(--ink) 14%, var(--canvas));
+  --border-seam: color-mix(in oklch, var(--ink) 9.5%, var(--canvas));
+  --input: color-mix(in oklch, var(--ink) 29.5%, var(--canvas));
+  --state-hover: color-mix(in oklab, var(--ink) 5.9%, transparent);
+  --surface-recessed: color-mix(in oklab, var(--ink) 6%, transparent);
+  --surface-raised-solid: color-mix(in oklab, var(--ink) 2.5%, var(--canvas));
+  --surface-destructive: color-mix(in oklab, var(--destructive) 6%, transparent);
+  --surface-destructive-border: color-mix(in oklab, var(--destructive) 25%, transparent);
+  --surface-attention: color-mix(in oklab, var(--attention) 12%, transparent);
+  --sidebar: color-mix(in oklch, var(--ink) 2.2%, var(--canvas));
+
+  --text-2xs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+}
+.dark {
+  --sidebar: color-mix(in oklch, var(--ink) 4.3%, var(--canvas));
+}
+
+
+/* Stand-in for the Tailwind v4 preflight the BB host applies to plugin UI (the plugin build emits utilities only). */
+@layer base {
+  *, ::before, ::after, ::backdrop { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid; }
+  button, input, select, optgroup, textarea { font: inherit; color: inherit; letter-spacing: inherit; background-color: transparent; border-radius: 0; }
+  button { cursor: pointer; }
+  ol, ul, menu { list-style: none; }
+  h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+  a { color: inherit; text-decoration: inherit; }
+  textarea { resize: vertical; }
+  ::placeholder { opacity: 1; }
+}
+
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, "Inter", sans-serif;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.shell { display: flex; height: 100vh; }
+.sidebar { width: 240px; flex-shrink: 0; background: var(--sidebar); border-right: 1px solid var(--border); padding: 12px 8px; }
+.sidebar-row { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 6px; color: var(--foreground); }
+.sidebar-row.active { background: var(--state-hover); font-weight: 600; }
+.sidebar-row .accessory { margin-left: auto; max-width: 4rem; height: 1.25rem; display: flex; align-items: center; overflow: hidden; }
+.sidebar-caption { font-size: var(--text-xs); color: var(--muted-foreground); padding: 4px 8px 8px; }
+.page { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.titlebar { height: 44px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--border); font-weight: 600; }
+.body { flex: 1; min-height: 0; }
+@media (max-width: 640px) { .sidebar { display: none; } }

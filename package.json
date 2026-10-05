@@ -1,0 +1,56 @@
+{
+  "name": "bb-plugin-visual-proof",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mpsoftware/bb-visual-proof.git"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "bb": ">=0.43",
+    "bbPluginSdk": ">=0.4.87"
+  },
+  "bb": {
+    "name": "Visual proof",
+    "description": "PR screenshots and screencasts per head SHA with annotate, send back, and approve.",
+    "branding": {
+      "icon": "./assets/icon.svg"
+    },
+    "server": "./server.ts",
+    "host": "./host.ts",
+    "app": "./app.tsx",
+    "skills": [
+      "skills"
+    ]
+  },
+  "scripts": {
+    "test": "vitest run --dir tests && node --test 'skills/prove/scripts/*.test.mjs'",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "bb plugin build",
+    "verify": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@get-bb/plugin-sdk": "0.4.87",
+    "@radix-ui/react-dialog": "^1.1.19",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/react": "16.3.3",
+    "@types/better-sqlite3": "7.6.12",
+    "@types/node": "22.19.15",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "better-sqlite3": "12.11.1",
+    "cron-parser": "5.5.0",
+    "hono": "4.13.9",
+    "jsdom": "30.1.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "typescript": "5.9.3",
+    "vite": "8.3.1",
+    "vitest": "4.1.11"
+  }
+}
