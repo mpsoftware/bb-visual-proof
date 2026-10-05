@@ -65,7 +65,8 @@ A change that spans several kinds needs evidence for every claim it makes.
    ([criteria](reference/criteria-format.md), [judge prompt](reference/judge-prompt.md);
    the judge model is configurable), then build the text report with
    `scripts/report.mjs <evidence-dir> verdicts.json criteria.json`. It names proof
-   items without embedding them.
+   items without embedding them, and exits non-zero unless every criterion passes
+   and has a readable screenshot; a capture with a failed step never passes.
 
 For UI code without an intended visible change, follow
 [visual-diff](reference/visual-diff.md) instead of uploading by default.

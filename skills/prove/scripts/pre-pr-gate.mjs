@@ -12,32 +12,38 @@
 // Wiring: register as a PreToolUse hook (matcher "Bash") in your Claude Code settings.
 // Escape hatch: `PROVE_SKIP=1 gh pr create ...`. Per-repo overrides: PROVE_BASE, PROVE_UI_REGEX.
 // Fail-open: any error or undecidable state -> allow (never break real work).
-import { execSync } from 'node:child_process'
+// Git runs without a shell: ref names may contain shell metacharacters.
+import { execFileSync } from 'node:child_process'
 import { readFileSync, existsSync } from 'node:fs'
 
 export const UI_DIR_REGEX = /(^|\/)(app|src\/app|components|src\/components|pages|src\/pages|messages|locales|layouts|src\/routes)\//i
 export const UI_FILE_REGEX = /\.(vue|svelte|astro)$/i
 
 // Pure decision core — all IO injected, so it is unit-testable without a real repo.
-//   git(cmd) -> stdout string ('' on failure)   exists(path) -> bool   read(path) -> string
+//   git(args) -> stdout string ('' on failure)   exists(path) -> bool   read(path) -> string
 // Returns { action: 'allow' } or { action: 'block', message }.
 export function decideGate({ cmd = '', env = {}, git, exists, read }) {
   if (!/\bgh\s+pr\s+create\b/.test(cmd)) return { action: 'allow' }
   if (env.PROVE_SKIP === '1' || /\bPROVE_SKIP=1\b/.test(cmd)) return { action: 'allow' }
 
+  // `base` names the branch in the message; `rev` is the unambiguous revision to diff against.
   let base = (env.PROVE_BASE || '').trim()
+  let rev = base
   if (!base) {
-    const originHead = git('git symbolic-ref --quiet --short refs/remotes/origin/HEAD')
-    base = originHead ? originHead.replace(/^origin\//, '') : ''
+    const originHead = git(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD'])
+    if (originHead.startsWith('refs/remotes/origin/')) {
+      rev = originHead
+      base = originHead.slice('refs/remotes/origin/'.length)
+    }
   }
   if (!base) {
     for (const c of ['main', 'master', 'staging', 'develop']) {
-      if (git(`git rev-parse --verify --quiet ${c}`)) { base = c; break }
+      if (git(['rev-parse', '--verify', '--quiet', `refs/heads/${c}`])) { base = c; rev = `refs/heads/${c}`; break }
     }
   }
   if (!base) return { action: 'allow' } // undecidable base → fail-open
 
-  const changed = git(`git diff --name-only ${base}...HEAD`)
+  const changed = git(['diff', '--name-only', '--end-of-options', `${rev}...HEAD`])
   if (!changed) return { action: 'allow' }
 
   let uiRegex = UI_DIR_REGEX
@@ -45,7 +51,7 @@ export function decideGate({ cmd = '', env = {}, git, exists, read }) {
   const uiTouched = changed.split('\n').some((f) => f && (uiRegex.test(f) || UI_FILE_REGEX.test(f)))
   if (!uiTouched) return { action: 'allow' }
 
-  const head = git('git rev-parse HEAD')
+  const head = git(['rev-parse', 'HEAD'])
   const proven = exists('.prove/PROVEN') ? read('.prove/PROVEN').trim() : ''
   if (head && proven === head) return { action: 'allow' }
 
@@ -67,9 +73,9 @@ if (isMain) {
   const BLOCK = 2
   try {
     const payload = JSON.parse(readFileSync(0, 'utf8'))
-    const git = (c) => {
+    const git = (args) => {
       try {
-        return execSync(c, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+        return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
       } catch {
         return ''
       }

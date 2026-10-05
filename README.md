@@ -34,6 +34,11 @@ npm ci && npm run build
 bb plugin install . --yes
 ```
 
+While this repository is private, both ways need authenticated Git access to
+it on the machine that installs (for example a logged-in `gh auth setup-git` or
+an SSH key). The `git:` install has not been tested end to end against the
+private repository; the local build and install path is the tested one.
+
 ## What it does
 
 - **Upload** (agent): `bb visual-proof add owner/repo#123 <files|directory>`.
@@ -141,3 +146,8 @@ directory (`PROOF_OUT_DIR` overrides it); it needs a local `playwright-core`
 ## License
 
 [MIT](LICENSE)
+
+Release TODO: the build bundles third-party packages (for example Zod and Radix
+UI) into `dist/`. Before distributing a built bundle separately (a release
+archive or a registry package), add their license notices to it. Installing from
+source does not redistribute them.
