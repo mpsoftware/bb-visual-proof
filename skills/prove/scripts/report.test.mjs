@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 const report = fileURLToPath(new URL('./report.mjs', import.meta.url))
 
-function fixture(t, verdicts) {
+function fixture(t, verdicts, criteria) {
   const dir = mkdtempSync(join(tmpdir(), 'prove-report-'))
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   writeFileSync(join(dir, 'manifest.json'), JSON.stringify({
@@ -16,7 +16,12 @@ function fixture(t, verdicts) {
     consoleErrors: [], failedStep: null, video: 'video/',
   }))
   writeFileSync(join(dir, 'verdicts.json'), JSON.stringify(verdicts))
-  const result = spawnSync(process.execPath, [report, dir, join(dir, 'verdicts.json')], {
+  const args = [report, dir, join(dir, 'verdicts.json')]
+  if (criteria) {
+    writeFileSync(join(dir, 'criteria.json'), JSON.stringify({ feature: 'Checkout', criteria }))
+    args.push(join(dir, 'criteria.json'))
+  }
+  const result = spawnSync(process.execPath, args, {
     cwd: dir, encoding: 'utf8',
   })
   return {
@@ -47,4 +52,15 @@ test('failed and inconsistent verdicts remain unproven', (t) => {
   assert.equal(f.verdict.criteria[0].passAtK, true)
   assert.equal(f.verdict.criteria[0].passPowK, false)
   assert.match(f.markdown, /NOT PROVEN/)
+})
+
+test('a listed criterion without a verdict keeps the report unproven', (t) => {
+  const f = fixture(t, [{ id: 'checkout', met: 'pass' }], [
+    { id: 'checkout', checkpoint: 'checkout' },
+    { id: 'confirmation', checkpoint: 'checkout' },
+  ])
+  assert.equal(f.result.status, 1)
+  assert.equal(f.verdict.passed, false)
+  assert.deepEqual(f.verdict.counts, { pass: 1, fail: 0, unknown: 1, total: 2 })
+  assert.match(f.markdown, /UNKNOWN — confirmation/)
 })

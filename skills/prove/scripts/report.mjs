@@ -26,7 +26,8 @@ const criteria = criteriaPath
 // Normalize to runs[][].
 const runs = Array.isArray(raw) ? [raw] : raw.runs
 const k = runs.length
-const ids = [...new Set(runs.flat().map((v) => v.id))]
+// Every listed criterion is judged; one without a verdict counts as unknown.
+const ids = [...new Set([...criteria.map((c) => c.id), ...runs.flat().map((v) => v.id)])]
 const byId = (id) => criteria.find((c) => c.id === id) ?? {}
 const cpFor = (id) =>
   manifest.checkpoints.find((c) => c.id === (byId(id).checkpoint ?? id))
